@@ -5,7 +5,8 @@ export const timeEntrySchema = z.object({
   date: z.string(), // YYYY-MM-DD format
   addedMinutes: z.number(),
   usedMinutes: z.number(),
-  balance: z.number(), // can be negative
+  balance: z.number(), // can be negative, in minutes
+  balanceSeconds: z.number().optional(), // precise balance in seconds
   lastUpdated: z.number(), // timestamp
 });
 
@@ -19,7 +20,7 @@ export const settingsSchema = z.object({
 export const timerStateSchema = z.object({
   isRunning: z.boolean(),
   startTime: z.number().nullable(), // timestamp when timer started
-  elapsedTime: z.number(), // accumulated time in minutes
+  elapsedTime: z.number(), // accumulated time in seconds
 });
 
 export type TimeEntry = z.infer<typeof timeEntrySchema>;

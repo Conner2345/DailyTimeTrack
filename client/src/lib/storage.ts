@@ -75,7 +75,7 @@ export const storage = {
     return {
       isRunning: false,
       startTime: null,
-      elapsedTime: 0,
+      elapsedTime: 0, // now in seconds
     };
   },
 

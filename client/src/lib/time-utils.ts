@@ -5,8 +5,18 @@ export function formatTime(minutes: number): string {
   const absMinutes = Math.abs(minutes);
   const hours = Math.floor(absMinutes / 60);
   const mins = absMinutes % 60;
-  const sign = isNegative ? '-' : '+';
+  const sign = isNegative ? '-' : '';
   return `${sign}${hours}:${mins.toString().padStart(2, '0')}`;
+}
+
+export function formatTimeWithSeconds(totalSeconds: number): string {
+  const isNegative = totalSeconds < 0;
+  const absSeconds = Math.abs(totalSeconds);
+  const hours = Math.floor(absSeconds / 3600);
+  const minutes = Math.floor((absSeconds % 3600) / 60);
+  const seconds = absSeconds % 60;
+  const sign = isNegative ? '-' : '';
+  return `${sign}${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
 export function formatDate(date: Date): string {

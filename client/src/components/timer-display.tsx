@@ -1,23 +1,27 @@
-import { Play, Pause, Square } from 'lucide-react';
+import { Play, Pause, Square, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatTime } from '@/lib/time-utils';
+import { formatTime, formatTimeWithSeconds } from '@/lib/time-utils';
 
 interface TimerDisplayProps {
   currentBalance: number;
+  currentBalanceInSeconds: number;
   elapsedTime: number;
   isRunning: boolean;
   onToggleTimer: () => void;
   onResetTimer: () => void;
+  onEditBalance: () => void;
 }
 
 export function TimerDisplay({ 
-  currentBalance, 
+  currentBalance,
+  currentBalanceInSeconds, 
   elapsedTime, 
   isRunning, 
   onToggleTimer, 
-  onResetTimer 
+  onResetTimer,
+  onEditBalance 
 }: TimerDisplayProps) {
-  const displayBalance = currentBalance - elapsedTime;
+  const displayBalanceInSeconds = currentBalanceInSeconds - elapsedTime;
   const today = new Date().toLocaleDateString('en-US', { 
     weekday: 'long', 
     month: 'long', 
@@ -27,12 +31,23 @@ export function TimerDisplay({
   return (
     <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-800 dark:to-slate-700 p-8 rounded-2xl shadow-lg">
       <div className="mb-4">
-        <h2 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">
-          Current Balance
-        </h2>
-        <div className="text-6xl font-bold mb-2" data-testid="balance-display">
-          <span className={displayBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-            {formatTime(displayBalance)}
+        <div className="flex items-center justify-center mb-2">
+          <h2 className="text-lg font-medium text-gray-600 dark:text-gray-300">
+            Current Balance
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-2 p-1 h-6 w-6"
+            onClick={onEditBalance}
+            data-testid="button-edit-balance"
+          >
+            <Edit className="w-3 h-3" />
+          </Button>
+        </div>
+        <div className="text-5xl font-bold mb-2" data-testid="balance-display">
+          <span className={displayBalanceInSeconds >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+            {formatTimeWithSeconds(displayBalanceInSeconds)}
           </span>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400" data-testid="date-display">
@@ -40,7 +55,7 @@ export function TimerDisplay({
         </p>
         {elapsedTime > 0 && (
           <p className="text-sm text-blue-600 dark:text-blue-400 mt-1" data-testid="elapsed-time">
-            Session: {formatTime(elapsedTime)}
+            Session: {formatTimeWithSeconds(elapsedTime)}
           </p>
         )}
       </div>
