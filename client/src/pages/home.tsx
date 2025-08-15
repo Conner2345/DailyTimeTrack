@@ -29,7 +29,7 @@ export default function Home() {
     exportData,
   } = useTimeTracking();
 
-  const { isRunning, elapsedTime, toggleTimer, resetTimer, setOnTimeUpdate } = useTimer();
+  const { isRunning, elapsedTime, toggleTimer, setOnTimeUpdate } = useTimer();
 
   const [showSettings, setShowSettings] = useState(false);
   const [showDayByDay, setShowDayByDay] = useState(false);
@@ -125,7 +125,7 @@ export default function Home() {
           elapsedTime={elapsedTime}
           isRunning={isRunning}
           onToggleTimer={toggleTimer}
-          onResetTimer={resetTimer}
+          onShowHistory={() => setShowDayByDay(true)}
           onEditBalance={() => {
             setEditingEntryId(getTodayEntry()?.id || null);
             setShowBalanceEdit(true);
