@@ -14,7 +14,7 @@ export function useTimer() {
     }
     
     const now = Date.now();
-    const sessionTime = Math.floor((now - timerState.startTime) / (1000 * 60)); // Convert to minutes
+    const sessionTime = Math.floor((now - timerState.startTime) / 1000); // Convert to seconds
     return timerState.elapsedTime + sessionTime;
   };
 
@@ -38,7 +38,7 @@ export function useTimer() {
   const pauseTimer = () => {
     if (timerState.isRunning && timerState.startTime) {
       const now = Date.now();
-      const sessionTime = Math.floor((now - timerState.startTime) / (1000 * 60));
+      const sessionTime = Math.floor((now - timerState.startTime) / 1000); // seconds
       
       const newState: TimerState = {
         isRunning: false,
@@ -47,9 +47,10 @@ export function useTimer() {
       };
       saveTimerState(newState);
       
-      // Update time usage when pausing
-      if (sessionTime > 0 && onTimeUpdate.current) {
-        onTimeUpdate.current(sessionTime);
+      // Update time usage when pausing (convert to minutes)
+      const sessionMinutes = Math.floor(sessionTime / 60);
+      if (sessionMinutes > 0 && onTimeUpdate.current) {
+        onTimeUpdate.current(sessionMinutes);
       }
     }
   };
@@ -68,11 +69,12 @@ export function useTimer() {
     // If timer was running, record the elapsed time before reset
     if (timerState.isRunning && timerState.startTime) {
       const now = Date.now();
-      const sessionTime = Math.floor((now - timerState.startTime) / (1000 * 60));
+      const sessionTime = Math.floor((now - timerState.startTime) / 1000); // seconds
       const totalElapsed = timerState.elapsedTime + sessionTime;
       
-      if (totalElapsed > 0 && onTimeUpdate.current) {
-        onTimeUpdate.current(totalElapsed);
+      const totalMinutes = Math.floor(totalElapsed / 60);
+      if (totalMinutes > 0 && onTimeUpdate.current) {
+        onTimeUpdate.current(totalMinutes);
       }
     }
 
@@ -93,8 +95,12 @@ export function useTimer() {
   useEffect(() => {
     if (timerState.isRunning) {
       intervalRef.current = setInterval(() => {
-        // Force re-render to update display
-        setTimerState(prev => ({ ...prev }));
+        // Force re-render to update display and persist state
+        setTimerState(prev => {
+          const newState = { ...prev };
+          storage.setTimerState(newState);
+          return newState;
+        });
       }, 1000);
     } else {
       if (intervalRef.current) {
@@ -107,6 +113,31 @@ export function useTimer() {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+    };
+  }, [timerState.isRunning]);
+
+  // Handle page visibility changes to ensure timer works in background
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && timerState.isRunning) {
+        // When returning to the app, recalculate elapsed time
+        const stored = storage.getTimerState();
+        if (stored.isRunning && stored.startTime) {
+          const now = Date.now();
+          const actualElapsed = Math.floor((now - stored.startTime) / 1000);
+          const correctedState = {
+            ...stored,
+            elapsedTime: actualElapsed
+          };
+          setTimerState(correctedState);
+          storage.setTimerState(correctedState);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [timerState.isRunning]);
 

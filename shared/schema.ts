@@ -19,7 +19,7 @@ export const settingsSchema = z.object({
 export const timerStateSchema = z.object({
   isRunning: z.boolean(),
   startTime: z.number().nullable(), // timestamp when timer started
-  elapsedTime: z.number(), // accumulated time in minutes
+  elapsedTime: z.number(), // accumulated time in seconds
 });
 
 export type TimeEntry = z.infer<typeof timeEntrySchema>;
