@@ -7,10 +7,55 @@ const STORAGE_KEYS = {
   TIMER_EVENTS: 'timetracker_timer_events',
 } as const;
 
+// Browser compatibility helper
+const isStorageAvailable = () => {
+  try {
+    const test = '__storage_test__';
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Fallback storage for browsers with localStorage issues
+const fallbackStorage = new Map<string, string>();
+
+const getItem = (key: string): string | null => {
+  if (isStorageAvailable()) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return fallbackStorage.get(key) || null;
+    }
+  }
+  return fallbackStorage.get(key) || null;
+};
+
+const setItem = (key: string, value: string): void => {
+  if (isStorageAvailable()) {
+    try {
+      localStorage.setItem(key, value);
+      return;
+    } catch {}
+  }
+  fallbackStorage.set(key, value);
+};
+
+const removeItem = (key: string): void => {
+  if (isStorageAvailable()) {
+    try {
+      localStorage.removeItem(key);
+    } catch {}
+  }
+  fallbackStorage.delete(key);
+};
+
 export const storage = {
-  // Settings
+  // Settings with cross-browser compatibility
   getSettings(): Settings {
-    const stored = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    const stored = getItem(STORAGE_KEYS.SETTINGS);
     if (stored) {
       try {
         return JSON.parse(stored);
@@ -27,12 +72,12 @@ export const storage = {
   },
 
   setSettings(settings: Settings): void {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
   },
 
-  // Time Entries
+  // Time Entries with browser compatibility
   getTimeEntries(): TimeEntry[] {
-    const stored = localStorage.getItem(STORAGE_KEYS.TIME_ENTRIES);
+    const stored = getItem(STORAGE_KEYS.TIME_ENTRIES);
     if (stored) {
       try {
         return JSON.parse(stored);
@@ -44,7 +89,7 @@ export const storage = {
   },
 
   setTimeEntries(entries: TimeEntry[]): void {
-    localStorage.setItem(STORAGE_KEYS.TIME_ENTRIES, JSON.stringify(entries));
+    setItem(STORAGE_KEYS.TIME_ENTRIES, JSON.stringify(entries));
   },
 
   getTimeEntry(date: string): TimeEntry | undefined {
@@ -63,9 +108,9 @@ export const storage = {
     this.setTimeEntries(entries);
   },
 
-  // Timer State
+  // Timer State with browser compatibility
   getTimerState(): TimerState {
-    const stored = localStorage.getItem(STORAGE_KEYS.TIMER_STATE);
+    const stored = getItem(STORAGE_KEYS.TIMER_STATE);
     if (stored) {
       try {
         return JSON.parse(stored);
@@ -82,12 +127,12 @@ export const storage = {
   },
 
   setTimerState(state: TimerState): void {
-    localStorage.setItem(STORAGE_KEYS.TIMER_STATE, JSON.stringify(state));
+    setItem(STORAGE_KEYS.TIMER_STATE, JSON.stringify(state));
   },
 
-  // Timer Events
+  // Timer Events with browser compatibility
   getTimerEvents(): TimerEvent[] {
-    const stored = localStorage.getItem(STORAGE_KEYS.TIMER_EVENTS);
+    const stored = getItem(STORAGE_KEYS.TIMER_EVENTS);
     if (stored) {
       try {
         return JSON.parse(stored);
@@ -99,7 +144,7 @@ export const storage = {
   },
 
   setTimerEvents(events: TimerEvent[]): void {
-    localStorage.setItem(STORAGE_KEYS.TIMER_EVENTS, JSON.stringify(events));
+    setItem(STORAGE_KEYS.TIMER_EVENTS, JSON.stringify(events));
   },
 
   addTimerEvent(event: TimerEvent): void {
@@ -112,11 +157,13 @@ export const storage = {
     this.setTimerEvents(events);
   },
 
-  // Data management
+  // Data management with browser compatibility
   clearAllData(): void {
     Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key);
+      removeItem(key);
     });
+    // Clear fallback storage as well
+    fallbackStorage.clear();
   },
 
   exportData(): string {

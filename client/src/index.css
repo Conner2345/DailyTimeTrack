@@ -89,6 +89,24 @@
   body {
     @apply font-sans antialiased bg-gray-50 dark:bg-slate-900 text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
+    /* Improve text rendering across browsers */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Samsung Internet and Edge compatibility fixes */
+  input, button, select, textarea {
+    font-family: inherit;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  /* Touch improvements for Samsung Internet */
+  button, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   /* Improved contrast for dark mode text */
@@ -128,17 +146,29 @@
   animation: slideUp 0.3s ease-out;
 }
 
-/* Mobile-specific overrides */
+/* Mobile-specific overrides - Samsung Internet, Chrome, Edge compatible */
 @media (max-width: 767px) {
   /* Ensure full height on mobile */
   html, body, #root {
     height: 100%;
     overflow-x: hidden;
+    /* Samsung Internet viewport fix */
+    height: 100vh;
+    height: 100dvh;
   }
   
-  /* Prevent zoom on input focus */
+  /* Prevent zoom on input focus - works across all browsers */
   input, select, textarea {
     font-size: 16px;
+    /* Samsung Internet specific fixes */
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Touch scroll improvements for Samsung Internet */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 }
 

@@ -10,7 +10,17 @@ export function useTimer() {
     const correctedState = handleAppRelaunch(stored);
     return correctedState;
   });
-  const [timerEvents, setTimerEvents] = useState<TimerEvent[]>(() => storage.getTimerEvents());
+  const [timerEvents, setTimerEvents] = useState<TimerEvent[]>([]);
+
+  // Load timer events from storage
+  useEffect(() => {
+    const stored = localStorage.getItem('timetracker_timer_events');
+    if (stored) {
+      try {
+        setTimerEvents(JSON.parse(stored));
+      } catch {}
+    }
+  }, []);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const onTimeUpdate = useRef<((minutes: number) => void) | null>(null);
 
@@ -36,7 +46,11 @@ export function useTimer() {
         sessionDuration: sessionDuration,
       };
       
-      storage.addTimerEvent(pauseEvent);
+      // Add pause event for the time app was closed
+      const events = timerEvents;
+      events.push(pauseEvent);
+      localStorage.setItem('timetracker_timer_events', JSON.stringify(events));
+      setTimerEvents([...events]);
       
       // Update time usage if callback is available
       if (sessionDuration > 60 && onTimeUpdate.current) {
@@ -83,8 +97,14 @@ export function useTimer() {
       sessionDuration,
     };
     
-    storage.addTimerEvent(event);
-    setTimerEvents(prev => [...prev, event]);
+    const newEvents = [...timerEvents, event];
+    // Keep only last 100 events to prevent storage bloat
+    if (newEvents.length > 100) {
+      newEvents.splice(0, newEvents.length - 100);
+    }
+    
+    localStorage.setItem('timetracker_timer_events', JSON.stringify(newEvents));
+    setTimerEvents(newEvents);
   };
 
   // Start the timer
