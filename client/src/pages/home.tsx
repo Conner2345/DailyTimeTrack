@@ -7,6 +7,8 @@ import { DailyStats } from '@/components/daily-stats';
 import { SettingsModal } from '@/components/settings-modal';
 import { DayByDayModal } from '@/components/day-by-day-modal';
 import { TimeEditModal } from '@/components/time-edit-modal';
+import { TimerHistoryModal } from '@/components/timer-history-modal';
+import { BalanceEditModal } from '@/components/balance-edit-modal';
 import { DarkModeToggle } from '@/components/dark-mode-toggle';
 import { useTimer } from '@/hooks/use-timer';
 import { useTimeTracking } from '@/hooks/use-time-tracking';
@@ -29,12 +31,13 @@ export default function Home() {
     exportData,
   } = useTimeTracking();
 
-  const { isRunning, elapsedTime, toggleTimer, resetTimer, setOnTimeUpdate } = useTimer();
+  const { isRunning, elapsedTime, toggleTimer, getTimerEvents, setOnTimeUpdate } = useTimer();
 
   const [showSettings, setShowSettings] = useState(false);
   const [showDayByDay, setShowDayByDay] = useState(false);
   const [showTimeEdit, setShowTimeEdit] = useState(false);
   const [showBalanceEdit, setShowBalanceEdit] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
   // Set up timer callback to update time usage
@@ -125,7 +128,7 @@ export default function Home() {
           elapsedTime={elapsedTime}
           isRunning={isRunning}
           onToggleTimer={toggleTimer}
-          onResetTimer={resetTimer}
+          onShowHistory={() => setShowHistory(true)}
           onEditBalance={() => {
             setEditingEntryId(getTodayEntry()?.id || null);
             setShowBalanceEdit(true);
@@ -202,9 +205,10 @@ export default function Home() {
         onSave={handleSaveTimeEdit}
       />
 
-      <TimeEditModal
+      <BalanceEditModal
         isOpen={showBalanceEdit}
         onClose={() => setShowBalanceEdit(false)}
+        currentBalance={currentBalance}
         onSave={(adjustmentMinutes: number) => {
           if (editingEntryId) {
             editTimeEntry(editingEntryId, adjustmentMinutes);
@@ -216,6 +220,23 @@ export default function Home() {
           setEditingEntryId(null);
           setShowBalanceEdit(false);
         }}
+        onSetAbsolute={(adjustmentMinutes: number) => {
+          if (editingEntryId) {
+            editTimeEntry(editingEntryId, adjustmentMinutes);
+            toast({
+              title: 'Balance Set',
+              description: `Balance set to ${formatTime(currentBalance + adjustmentMinutes)}`,
+            });
+          }
+          setEditingEntryId(null);
+          setShowBalanceEdit(false);
+        }}
+      />
+
+      <TimerHistoryModal
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        events={getTimerEvents()}
       />
     </div>
   );
