@@ -33,7 +33,6 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [showDayByDay, setShowDayByDay] = useState(false);
   const [showTimeEdit, setShowTimeEdit] = useState(false);
-  const [showBalanceEdit, setShowBalanceEdit] = useState(false);
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
   // Set up timer callback to update time usage
@@ -102,7 +101,7 @@ export default function Home() {
       {/* Header */}
       <header className="bg-blue-600 dark:bg-blue-700 text-white p-4 shadow-md">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Time Bank</h1>
+          <h1 className="text-xl font-semibold">Time Balance</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -123,10 +122,6 @@ export default function Home() {
           isRunning={isRunning}
           onToggleTimer={toggleTimer}
           onResetTimer={resetTimer}
-          onEditBalance={() => {
-            setEditingEntryId(getTodayEntry()?.id || null);
-            setShowBalanceEdit(true);
-          }}
         />
 
         <DailyStats
@@ -197,22 +192,6 @@ export default function Home() {
         isOpen={showTimeEdit}
         onClose={() => setShowTimeEdit(false)}
         onSave={handleSaveTimeEdit}
-      />
-
-      <TimeEditModal
-        isOpen={showBalanceEdit}
-        onClose={() => setShowBalanceEdit(false)}
-        onSave={(adjustmentMinutes: number) => {
-          if (editingEntryId) {
-            editTimeEntry(editingEntryId, adjustmentMinutes);
-            toast({
-              title: 'Balance Updated',
-              description: `Balance adjusted by ${formatTime(Math.abs(adjustmentMinutes))}`,
-            });
-          }
-          setEditingEntryId(null);
-          setShowBalanceEdit(false);
-        }}
       />
     </div>
   );
