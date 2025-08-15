@@ -20,7 +20,6 @@ export default function Home() {
     timeEntries,
     settings,
     getCurrentBalance,
-    getCurrentBalanceInSeconds,
     getTodayEntry,
     updateTimeUsage,
     updateSettings,
@@ -96,7 +95,6 @@ export default function Home() {
   };
 
   const currentBalance = getCurrentBalance();
-  const currentBalanceInSeconds = getCurrentBalanceInSeconds();
   const todayEntry = getTodayEntry();
 
   return (
@@ -121,7 +119,6 @@ export default function Home() {
       <main className="p-6 pb-20 space-y-6">
         <TimerDisplay
           currentBalance={currentBalance}
-          currentBalanceInSeconds={currentBalanceInSeconds}
           elapsedTime={elapsedTime}
           isRunning={isRunning}
           onToggleTimer={toggleTimer}

@@ -5,8 +5,7 @@ export const timeEntrySchema = z.object({
   date: z.string(), // YYYY-MM-DD format
   addedMinutes: z.number(),
   usedMinutes: z.number(),
-  balance: z.number(), // can be negative, in minutes
-  balanceSeconds: z.number().optional(), // precise balance in seconds
+  balance: z.number(), // can be negative
   lastUpdated: z.number(), // timestamp
 });
 
