@@ -1,10 +1,9 @@
-import { Settings, TimeEntry, TimerState, TimerEvent } from "@shared/schema";
+import { Settings, TimeEntry, TimerState } from "@shared/schema";
 
 const STORAGE_KEYS = {
   SETTINGS: 'timetracker_settings',
   TIME_ENTRIES: 'timetracker_entries',
   TIMER_STATE: 'timetracker_timer',
-  TIMER_EVENTS: 'timetracker_timer_events',
 } as const;
 
 export const storage = {
@@ -77,39 +76,11 @@ export const storage = {
       isRunning: false,
       startTime: null,
       elapsedTime: 0, // now in seconds
-      lastActiveTimestamp: Date.now(),
     };
   },
 
   setTimerState(state: TimerState): void {
     localStorage.setItem(STORAGE_KEYS.TIMER_STATE, JSON.stringify(state));
-  },
-
-  // Timer Events
-  getTimerEvents(): TimerEvent[] {
-    const stored = localStorage.getItem(STORAGE_KEYS.TIMER_EVENTS);
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  },
-
-  setTimerEvents(events: TimerEvent[]): void {
-    localStorage.setItem(STORAGE_KEYS.TIMER_EVENTS, JSON.stringify(events));
-  },
-
-  addTimerEvent(event: TimerEvent): void {
-    const events = this.getTimerEvents();
-    events.push(event);
-    // Keep only last 100 events to prevent storage bloat
-    if (events.length > 100) {
-      events.splice(0, events.length - 100);
-    }
-    this.setTimerEvents(events);
   },
 
   // Data management
@@ -124,7 +95,6 @@ export const storage = {
       settings: this.getSettings(),
       timeEntries: this.getTimeEntries(),
       timerState: this.getTimerState(),
-      timerEvents: this.getTimerEvents(),
       exportDate: new Date().toISOString(),
     };
     return JSON.stringify(data, null, 2);
