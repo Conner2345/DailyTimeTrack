@@ -36,6 +36,7 @@ export function useTimeTracking() {
         addedMinutes: dailyMinutes,
         usedMinutes: 0,
         balance: dailyMinutes,
+        balanceSeconds: dailyMinutes * 60,
         lastUpdated: Date.now(),
       };
       
@@ -43,10 +44,14 @@ export function useTimeTracking() {
       setTimeEntries(prev => [...prev, newEntry]);
     } else if (existingEntry.addedMinutes === 0) {
       // Update existing entry that hasn't had daily time added yet
+      const currentBalanceSeconds = existingEntry.balanceSeconds ?? (existingEntry.balance * 60);
+      const updatedBalanceSeconds = currentBalanceSeconds + (dailyMinutes * 60);
+      
       const updatedEntry: TimeEntry = {
         ...existingEntry,
         addedMinutes: dailyMinutes,
-        balance: existingEntry.balance + dailyMinutes,
+        balance: Math.floor(updatedBalanceSeconds / 60),
+        balanceSeconds: updatedBalanceSeconds,
         lastUpdated: Date.now(),
       };
       
@@ -61,6 +66,13 @@ export function useTimeTracking() {
     const today = getDateString(new Date());
     const todayEntry = timeEntries.find(entry => entry.date === today);
     return todayEntry?.balance || 0;
+  };
+
+  const getCurrentBalanceInSeconds = (): number => {
+    const today = getDateString(new Date());
+    const todayEntry = timeEntries.find(entry => entry.date === today);
+    // Convert minutes to seconds, use balanceSeconds if available for precision
+    return todayEntry?.balanceSeconds ?? ((todayEntry?.balance || 0) * 60);
   };
 
   const getTodayEntry = (): TimeEntry | undefined => {
@@ -80,25 +92,31 @@ export function useTimeTracking() {
         addedMinutes: 0,
         usedMinutes: 0,
         balance: 0,
+        balanceSeconds: 0,
         lastUpdated: Date.now(),
       };
     }
 
+    const currentBalanceSeconds = todayEntry.balanceSeconds ?? (todayEntry.balance * 60);
+    const updatedBalanceSeconds = currentBalanceSeconds - (minutes * 60);
+
     const updatedEntry: TimeEntry = {
       ...todayEntry,
       usedMinutes: todayEntry.usedMinutes + minutes,
-      balance: todayEntry.balance - minutes,
+      balance: Math.floor(updatedBalanceSeconds / 60),
+      balanceSeconds: updatedBalanceSeconds,
       lastUpdated: Date.now(),
     };
 
     // Handle negative balance rollover
-    if (updatedEntry.balance < 0) {
+    if (updatedEntry.balanceSeconds! < 0) {
       const nextDay = new Date();
       nextDay.setDate(nextDay.getDate() + 1);
       const nextDayString = getDateString(nextDay);
       
       let nextDayEntry = timeEntries.find(entry => entry.date === nextDayString);
-      const carryOver = Math.abs(updatedEntry.balance);
+      const carryOverSeconds = Math.abs(updatedEntry.balanceSeconds!);
+      const carryOverMinutes = Math.floor(carryOverSeconds / 60);
       
       if (!nextDayEntry) {
         nextDayEntry = {
@@ -106,16 +124,21 @@ export function useTimeTracking() {
           date: nextDayString,
           addedMinutes: 0,
           usedMinutes: 0,
-          balance: carryOver, // Credit for next day
+          balance: carryOverMinutes, // Credit for next day
+          balanceSeconds: carryOverSeconds,
           lastUpdated: Date.now(),
         };
         
         storage.updateTimeEntry(nextDayEntry);
         setTimeEntries(prev => [...prev, nextDayEntry!]);
       } else {
+        const nextDayCurrentSeconds = nextDayEntry.balanceSeconds ?? (nextDayEntry.balance * 60);
+        const updatedNextDaySeconds = nextDayCurrentSeconds + carryOverSeconds;
+        
         const updatedNextDay: TimeEntry = {
           ...nextDayEntry,
-          balance: nextDayEntry.balance + carryOver,
+          balance: Math.floor(updatedNextDaySeconds / 60),
+          balanceSeconds: updatedNextDaySeconds,
           lastUpdated: Date.now(),
         };
         
@@ -141,9 +164,13 @@ export function useTimeTracking() {
     const entry = timeEntries.find(e => e.id === entryId);
     if (!entry) return;
 
+    const currentBalanceSeconds = entry.balanceSeconds ?? (entry.balance * 60);
+    const updatedBalanceSeconds = currentBalanceSeconds + (adjustmentMinutes * 60);
+
     const updatedEntry: TimeEntry = {
       ...entry,
-      balance: entry.balance + adjustmentMinutes,
+      balance: Math.floor(updatedBalanceSeconds / 60),
+      balanceSeconds: updatedBalanceSeconds,
       lastUpdated: Date.now(),
     };
 
@@ -171,6 +198,7 @@ export function useTimeTracking() {
     timeEntries: getSortedEntries(),
     settings,
     getCurrentBalance,
+    getCurrentBalanceInSeconds,
     getTodayEntry,
     updateTimeUsage,
     updateSettings,

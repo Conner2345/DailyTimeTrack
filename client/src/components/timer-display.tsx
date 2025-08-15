@@ -4,6 +4,7 @@ import { formatTime, formatTimeWithSeconds } from '@/lib/time-utils';
 
 interface TimerDisplayProps {
   currentBalance: number;
+  currentBalanceInSeconds: number;
   elapsedTime: number;
   isRunning: boolean;
   onToggleTimer: () => void;
@@ -12,15 +13,15 @@ interface TimerDisplayProps {
 }
 
 export function TimerDisplay({ 
-  currentBalance, 
+  currentBalance,
+  currentBalanceInSeconds, 
   elapsedTime, 
   isRunning, 
   onToggleTimer, 
   onResetTimer,
   onEditBalance 
 }: TimerDisplayProps) {
-  const elapsedMinutes = Math.floor(elapsedTime / 60);
-  const displayBalance = currentBalance - elapsedMinutes;
+  const displayBalanceInSeconds = currentBalanceInSeconds - elapsedTime;
   const today = new Date().toLocaleDateString('en-US', { 
     weekday: 'long', 
     month: 'long', 
@@ -44,9 +45,9 @@ export function TimerDisplay({
             <Edit className="w-3 h-3" />
           </Button>
         </div>
-        <div className="text-6xl font-bold mb-2" data-testid="balance-display">
-          <span className={displayBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-            {formatTime(displayBalance)}
+        <div className="text-5xl font-bold mb-2" data-testid="balance-display">
+          <span className={displayBalanceInSeconds >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+            {formatTimeWithSeconds(displayBalanceInSeconds)}
           </span>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400" data-testid="date-display">
