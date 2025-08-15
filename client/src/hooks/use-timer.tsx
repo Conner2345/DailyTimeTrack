@@ -110,7 +110,6 @@ export function useTimer() {
         isRunning: false,
         startTime: null,
         elapsedTime: timerState.elapsedTime + sessionTime,
-        lastActiveTimestamp: Date.now(),
       };
       saveTimerState(newState);
       
