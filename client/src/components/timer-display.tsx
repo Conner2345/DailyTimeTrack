@@ -1,4 +1,4 @@
-import { Play, Pause, History, Edit } from 'lucide-react';
+import { Play, Pause, Square, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatTime, formatTimeWithSeconds } from '@/lib/time-utils';
 
@@ -8,7 +8,7 @@ interface TimerDisplayProps {
   elapsedTime: number;
   isRunning: boolean;
   onToggleTimer: () => void;
-  onShowHistory: () => void;
+  onResetTimer: () => void;
   onEditBalance: () => void;
 }
 
@@ -18,7 +18,7 @@ export function TimerDisplay({
   elapsedTime, 
   isRunning, 
   onToggleTimer, 
-  onShowHistory,
+  onResetTimer,
   onEditBalance 
 }: TimerDisplayProps) {
   const displayBalanceInSeconds = currentBalanceInSeconds - elapsedTime;
@@ -75,11 +75,11 @@ export function TimerDisplay({
         </Button>
         <Button
           size="lg"
-          className="w-16 h-16 bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white rounded-full shadow-lg transition-all transform active:scale-95"
-          onClick={onShowHistory}
-          data-testid="button-show-history"
+          className="w-16 h-16 bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-full shadow-lg transition-all transform active:scale-95"
+          onClick={onResetTimer}
+          data-testid="button-reset-timer"
         >
-          <History className="w-6 h-6" />
+          <Square className="w-6 h-6" />
         </Button>
       </div>
     </div>

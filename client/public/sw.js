@@ -1,4 +1,4 @@
-// Service Worker for Time Bank App - Compatible with Samsung Internet, Chrome, Edge
+// Service Worker for Time Bank App
 const CACHE_NAME = 'time-bank-v1';
 const urlsToCache = [
   '/',
@@ -8,32 +8,12 @@ const urlsToCache = [
   '/manifest.json'
 ];
 
-// Browser compatibility check
-const isSupported = () => {
-  return (
-    'serviceWorker' in navigator &&
-    'localStorage' in window &&
-    'indexedDB' in window
-  );
-};
-
-// Install event - cache resources with error handling for all browsers
+// Install event - cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        // Try to cache each URL individually for better Samsung Internet compatibility
-        return Promise.all(
-          urlsToCache.map(url => {
-            return cache.add(url).catch(err => {
-              console.warn('Failed to cache:', url, err);
-              return Promise.resolve();
-            });
-          })
-        );
-      })
-      .catch(err => {
-        console.warn('Cache open failed:', err);
+        return cache.addAll(urlsToCache);
       })
   );
 });
