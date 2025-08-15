@@ -54,7 +54,7 @@ export function TimerDisplay({
           {today}
         </p>
         {elapsedTime > 0 && (
-          <p className="text-sm text-blue-600 dark:text-blue-400 mt-1" data-testid="elapsed-time">
+          <p className="text-lg font-medium text-blue-600 dark:text-blue-400 mt-2" data-testid="elapsed-time">
             Session: {formatTimeWithSeconds(elapsedTime)}
           </p>
         )}

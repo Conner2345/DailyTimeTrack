@@ -8,6 +8,7 @@ import { SettingsModal } from '@/components/settings-modal';
 import { DayByDayModal } from '@/components/day-by-day-modal';
 import { TimeEditModal } from '@/components/time-edit-modal';
 import { TimerHistoryModal } from '@/components/timer-history-modal';
+import { BalanceEditModal } from '@/components/balance-edit-modal';
 import { DarkModeToggle } from '@/components/dark-mode-toggle';
 import { useTimer } from '@/hooks/use-timer';
 import { useTimeTracking } from '@/hooks/use-time-tracking';
@@ -204,15 +205,27 @@ export default function Home() {
         onSave={handleSaveTimeEdit}
       />
 
-      <TimeEditModal
+      <BalanceEditModal
         isOpen={showBalanceEdit}
         onClose={() => setShowBalanceEdit(false)}
+        currentBalance={currentBalance}
         onSave={(adjustmentMinutes: number) => {
           if (editingEntryId) {
             editTimeEntry(editingEntryId, adjustmentMinutes);
             toast({
               title: 'Balance Updated',
               description: `Balance adjusted by ${formatTime(Math.abs(adjustmentMinutes))}`,
+            });
+          }
+          setEditingEntryId(null);
+          setShowBalanceEdit(false);
+        }}
+        onSetAbsolute={(adjustmentMinutes: number) => {
+          if (editingEntryId) {
+            editTimeEntry(editingEntryId, adjustmentMinutes);
+            toast({
+              title: 'Balance Set',
+              description: `Balance set to ${formatTime(currentBalance + adjustmentMinutes)}`,
             });
           }
           setEditingEntryId(null);
